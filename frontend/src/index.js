@@ -10,16 +10,19 @@ import { Sample } from './screens/Sample';
 import {Orders} from './screens/Orders';
 import { Login } from './screens/Login';
 import { Register } from './screens/Register';
+import PrivateRoute from './components/PrivateRoute';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const router = createBrowserRouter(createRoutesFromElements(
   <Route path='/' element={<App />}>
-    <Route index element={<Dashboard />} />
-    <Route path='/sample' element={<Sample />} />
-    <Route path='/orders' element={<Orders />} />
     <Route path='/login' element={<Login />} />
     <Route path='/register' element={<Register />} />
+    <Route path="/" element={<PrivateRoute />} >
+      <Route index element={<Dashboard />} />
+      <Route path='/sample' element={<Sample />} />
+      <Route path='/orders' element={<Orders />} />
+    </Route>
   </Route>
 ))
 

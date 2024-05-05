@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 
 export function ModeToggle() {
-  const { theme } = useSelector((state) => state.theme);
+  const { theme } = useSelector((state) => state.userTheme);
   const dispath = useDispatch();
   // const { setTheme } = useTheme();
 

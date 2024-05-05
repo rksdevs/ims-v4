@@ -9,6 +9,8 @@ import {
 } from "../components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import Chart from "../components/Chart";
+import avatarMan from "../components/assets/images/avatar-man.jpg";
+import avatarWoman from "../components/assets/images/avatar-woman.jpg";
 
 export function Dashboard() {
   return (
@@ -79,7 +81,7 @@ export function Dashboard() {
             <CardContent className="grid gap-8">
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/01.png" alt="Avatar" />
+                  <AvatarImage src={avatarMan} alt="Avatar" />
                   <AvatarFallback>OM</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -94,7 +96,7 @@ export function Dashboard() {
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/02.png" alt="Avatar" />
+                  <AvatarImage src={avatarWoman} alt="Avatar" />
                   <AvatarFallback>JL</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -109,7 +111,7 @@ export function Dashboard() {
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/03.png" alt="Avatar" />
+                  <AvatarImage src={avatarMan} alt="Avatar" />
                   <AvatarFallback>IN</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -124,7 +126,7 @@ export function Dashboard() {
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/04.png" alt="Avatar" />
+                  <AvatarImage src={avatarWoman} alt="Avatar" />
                   <AvatarFallback>WK</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -139,7 +141,7 @@ export function Dashboard() {
               </div>
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src="/avatars/05.png" alt="Avatar" />
+                  <AvatarImage src={avatarMan} alt="Avatar" />
                   <AvatarFallback>SD</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">

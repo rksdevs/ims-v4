@@ -36,6 +36,7 @@ import { Input } from "./components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "./components/ui/sheet";
 import SideNavbar from './components/SideNavbar';
 import Header from './components/Header';
+import { Toaster } from './components/ui/toaster';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           <Outlet />
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }

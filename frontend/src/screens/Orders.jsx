@@ -147,7 +147,7 @@ export function Orders() {
                   value="week"
                   className="max-h-[50vh] overflow-y-auto"
                 >
-                  <Card x-chunk="dashboard-05-chunk-3">
+                  <Card x-chunk="dashboard-05-chunk-3" className="rounded-sm">
                     <CardHeader className="px-7">
                       <CardTitle>Orders</CardTitle>
                       <CardDescription>
