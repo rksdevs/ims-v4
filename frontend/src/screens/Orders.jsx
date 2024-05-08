@@ -213,18 +213,20 @@ export function Orders() {
                         <>Something went wrong</>
                       ) : (
                         <Table>
-                          {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                              {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id}>
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                </TableHead>
-                              ))}
-                            </TableRow>
-                          ))}
+                          <TableHeader>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                              <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                  <TableHead key={header.id}>
+                                    {flexRender(
+                                      header.column.columnDef.header,
+                                      header.getContext()
+                                    )}
+                                  </TableHead>
+                                ))}
+                              </TableRow>
+                            ))}
+                          </TableHeader>
                           <TableBody>
                             {table.getRowModel().rows.map((row) => (
                               <TableRow key={row.id}>

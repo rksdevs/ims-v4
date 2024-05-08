@@ -14,31 +14,29 @@ const addProduct = async(req, res) => {
             return res.status(400).json({message: "Unauthorized!"});
         }
 
-        const {productName, image, size, color, quantity, price, description, brand, category} = req.body;
+        // const {productName, image, size, color, quantity, price, description, brand, category} = req.body;
 
-        //status verification
-        const brandStatus = await Brand.findOne({_id: brand, status: "Active"});
+        // //status verification
+        // const brandStatus = await Brand.findOne({_id: brand, status: "Active"});
 
-        if(!brandStatus) {
-            return res.status(400).json({message: "Brand is not available!"});
-        }
-
-
+        // if(!brandStatus) {
+        //     return res.status(400).json({message: "Brand is not available!"});
+        // }
 
         const newProduct = new Product({
-            productName: productName,
-            image: image,
-            size: size,
-            quantity: quantity,
-            price: price,
-            description: description,
-            brand: brand,
-            category: category,
-            color: color
+            productName: "Sample Product",
+            image: '/image/Sample.jpg',
+            size: "0",
+            quantity: 0,
+            price: 0,
+            description: "Describe Product...",
+            brand: "657b1f20521b35e921690088",
+            category: "657749a7ca0a55e2c007937b",
+            color: "Color"
         })
 
-        await newProduct.save();
-        res.status(200).json(newProduct);
+        const createdProduct = await newProduct.save();
+        res.status(200).json(createdProduct);
         
     } catch (error) {
         console.log(error);

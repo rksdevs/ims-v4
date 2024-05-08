@@ -12,6 +12,7 @@ import { Login } from './screens/Login';
 import { Register } from './screens/Register';
 import PrivateRoute from './components/PrivateRoute';
 import { Products } from './screens/Products';
+import { EditProduct } from './screens/EditProduct';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -24,6 +25,7 @@ const router = createBrowserRouter(createRoutesFromElements(
       <Route path='/sample' element={<Sample />} />
       <Route path='/orders' element={<Orders />} />
       <Route path='/products' element={<Products />} />
+      <Route path='/products/addProduct/:id' element={<EditProduct />} />
     </Route>
   </Route>
 ))
