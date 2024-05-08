@@ -2,11 +2,11 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
 const verifyAdmin = async (req,res, next) => {
-
+    let token;
     try {
 
         //find the authorization token
-        const token = req.cookies.access_token;
+        token = req.cookies.access_token;
         // console.log(token)
 
         if(!token) {

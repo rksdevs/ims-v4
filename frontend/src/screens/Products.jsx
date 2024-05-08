@@ -59,7 +59,7 @@ import {
 } from "@tanstack/react-table";
 import { Skeleton } from "../components/ui/skeleton";
 
-export function Orders() {
+export function Products() {
   const { data: allOrders, isLoading, error } = useGetAllOrdersQuery();
   const data = useMemo(() => {
     return allOrders || [];
@@ -98,7 +98,7 @@ export function Orders() {
   return (
     <>
       <div className="flex items-center pl-4">
-        <h1 className="text-lg font-semibold md:text-2xl">Orders</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">Products</h1>
       </div>
       <div className="flex min-h-[80vh] w-full flex-col bg-muted/40">
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">

@@ -11,6 +11,7 @@ import {Orders} from './screens/Orders';
 import { Login } from './screens/Login';
 import { Register } from './screens/Register';
 import PrivateRoute from './components/PrivateRoute';
+import { Products } from './screens/Products';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -22,6 +23,7 @@ const router = createBrowserRouter(createRoutesFromElements(
       <Route index element={<Dashboard />} />
       <Route path='/sample' element={<Sample />} />
       <Route path='/orders' element={<Orders />} />
+      <Route path='/products' element={<Products />} />
     </Route>
   </Route>
 ))

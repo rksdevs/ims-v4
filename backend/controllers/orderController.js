@@ -94,6 +94,7 @@ const getAllOrder = async (req, res) => {
                 custPhone: 1,
                 netAmount: 1,
                 date: 1,
+                custAddress: 1,
                 items: { $arrayElemAt: ['$itemDetails.productName', 0] },
               },
             },
