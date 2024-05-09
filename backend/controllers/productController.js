@@ -14,15 +14,6 @@ const addProduct = async(req, res) => {
             return res.status(400).json({message: "Unauthorized!"});
         }
 
-        // const {productName, image, size, color, quantity, price, description, brand, category} = req.body;
-
-        // //status verification
-        // const brandStatus = await Brand.findOne({_id: brand, status: "Active"});
-
-        // if(!brandStatus) {
-        //     return res.status(400).json({message: "Brand is not available!"});
-        // }
-
         const newProduct = new Product({
             productName: "Sample Product",
             image: '/image/Sample.jpg',
@@ -68,6 +59,7 @@ const deleteProduct = async(req,res) => {
 //update product
 
 const editProduct = async(req,res) => {
+    const {productName, description, image, quantity, price, size, color, brand, category} = req.body;
     try {
         //verify admin
         const verifyAdmin = req.user.isAdmin;
@@ -75,9 +67,23 @@ const editProduct = async(req,res) => {
             return res.status(400).json({message: "Unauthorized!"});
         } 
         
-        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, {new:true});
-        res.status(200).json(updatedProduct)
+        const productToUpdate = await Product.findById(req.params.id);
 
+        if (productToUpdate) {
+            productToUpdate.productName = productName;
+            productToUpdate.description = description;
+            productToUpdate.image = image;
+            productToUpdate.quantity = quantity;
+            productToUpdate.price = price;
+            productToUpdate.size = size;
+            productToUpdate.color = color;
+            productToUpdate.brand = brand;
+            productToUpdate.category = category;
+        }
+
+        const updatedProduct = await productToUpdate.save();
+
+        res.status(200).json(updatedProduct)
     } catch (error) {
         console.log(error);
         return res.status(500).json(error);

@@ -57,13 +57,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../components/ui/tooltip";
-import { useParams } from "react-router-dom";
-import { useGetSpecificProductQuery } from "../Features/productApiSlice";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  useEditProductMutation,
+  useGetSpecificProductQuery,
+} from "../Features/productApiSlice";
 import { useGetAllBrandsQuery } from "../Features/brandApiSlice";
 import { useGetAllCategoriesQuery } from "../Features/categoryApiSlice";
+import { useEffect, useState } from "react";
+import { toast } from "../components/ui/use-toast";
 
 export function EditProduct() {
   const { id: productId } = useParams();
+  const navigate = useNavigate();
   const {
     data: productDetails,
     isLoading,
@@ -79,6 +85,74 @@ export function EditProduct() {
     isLoading: loadingCategories,
     error: errorCategories,
   } = useGetAllCategoriesQuery();
+  const [updateProduct, { error: updateProductError }] =
+    useEditProductMutation();
+
+  const [productName, setProductName] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
+  const [quantity, setQuantity] = useState(0);
+  const [price, setPrice] = useState(0);
+  const [size, setSize] = useState("");
+  const [color, setColor] = useState("");
+  const [brand, setBrand] = useState("");
+  const [category, setCategory] = useState("");
+
+  useEffect(() => {
+    if (productDetails) {
+      setProductName(productDetails.productName);
+      setDescription(productDetails.description);
+      setImage(productDetails.image);
+      setQuantity(productDetails.quantity);
+      setPrice(productDetails.price);
+      setSize(productDetails.size);
+      setColor(productDetails.color);
+      setBrand(productDetails.brand);
+      setCategory(productDetails.category);
+    }
+  }, [productDetails]);
+
+  const handleProductUpdate = async (e) => {
+    e.preventDefault();
+    // console.log({
+    //   productName,
+    //   description,
+    //   image,
+    //   quantity,
+    //   price,
+    //   size,
+    //   color,
+    //   brand,
+    //   category,
+    // });
+    try {
+      const res = await updateProduct({
+        productId,
+        productName,
+        description,
+        image,
+        quantity,
+        price,
+        size,
+        color,
+        brand,
+        category,
+      }).unwrap();
+      toast({
+        title: `${res.productName} updated successfully!`,
+      });
+      navigate("/products");
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Failed to update product",
+        description:
+          updateProductError.message || error?.message || error?.data?.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <div className="flex items-center pl-4">
@@ -94,7 +168,10 @@ export function EditProduct() {
                 <>Oops something went wrong! Please refresh the page</>
               ) : (
                 <>
-                  <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
+                  <form
+                    className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8"
+                    onSubmit={(e) => handleProductUpdate(e)}
+                  >
                     <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-4">
                       <Card x-chunk="dashboard-07-chunk-0">
                         <CardHeader>
@@ -108,14 +185,17 @@ export function EditProduct() {
                                 id="name"
                                 type="text"
                                 className="w-full"
-                                placeholder={productDetails.productName}
+                                placeholder={productName}
+                                value={productName}
+                                onChange={(e) => setProductName(e.target.value)}
                               />
                             </div>
                             <div className="grid gap-3">
                               <Label htmlFor="description">Description</Label>
                               <Textarea
                                 id="description"
-                                defaultValue={productDetails.description}
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
                                 className="min-h-14"
                               />
                             </div>
@@ -149,7 +229,10 @@ export function EditProduct() {
                                   <Input
                                     id="stock-1"
                                     type="number"
-                                    defaultValue={productDetails.quantity}
+                                    value={quantity}
+                                    onChange={(e) =>
+                                      setQuantity(e.target.value)
+                                    }
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -159,7 +242,8 @@ export function EditProduct() {
                                   <Input
                                     id="color"
                                     type="text"
-                                    defaultValue={productDetails.color}
+                                    value={color}
+                                    onChange={(e) => setColor(e.target.value)}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -169,7 +253,8 @@ export function EditProduct() {
                                   <Input
                                     id="price-1"
                                     type="number"
-                                    defaultValue={productDetails.price}
+                                    value={price}
+                                    onChange={(e) => setPrice(e.target.value)}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -179,7 +264,8 @@ export function EditProduct() {
                                   <Input
                                     id="size"
                                     type="text"
-                                    defaultValue={productDetails.size}
+                                    value={size}
+                                    onChange={(e) => setSize(e.target.value)}
                                   />
                                 </TableCell>
                               </TableRow>
@@ -195,7 +281,7 @@ export function EditProduct() {
                           <div className="grid gap-6 sm:grid-cols-3">
                             <div className="grid gap-3">
                               <Label htmlFor="brand">Brand</Label>
-                              <Select>
+                              <Select onValueChange={(e) => setBrand(e)}>
                                 <SelectTrigger
                                   id="brand"
                                   aria-label="Select brand"
@@ -231,7 +317,7 @@ export function EditProduct() {
                             </div>
                             <div className="grid gap-3">
                               <Label htmlFor="category">Category</Label>
-                              <Select>
+                              <Select onValueChange={(e) => setCategory(e)}>
                                 <SelectTrigger
                                   id="category"
                                   aria-label="Select category"
@@ -316,11 +402,13 @@ export function EditProduct() {
                           <CardTitle>Save Product</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <Button size="sm">Save</Button>
+                          <Button size="sm" type="submit">
+                            Save
+                          </Button>
                         </CardContent>
                       </Card>
                     </div>
-                  </div>
+                  </form>
                   <div className="flex items-center justify-center gap-2 md:hidden">
                     <Button variant="outline" size="sm">
                       Discard
