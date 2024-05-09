@@ -78,61 +78,43 @@ import {
 } from "../Features/productApiSlice";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ui/use-toast";
+import { useGetAllBrandsQuery } from "../Features/brandApiSlice";
+import { useGetAllCategoriesQuery } from "../Features/categoryApiSlice";
 
-export function Products() {
+export function Category() {
+  const { toast } = useToast();
   const navigate = useNavigate();
   const {
-    data: allProducts,
+    data: allCategories,
     isLoading,
     error,
     refetch,
-  } = useGetAllProductsQuery();
+  } = useGetAllCategoriesQuery();
   const [addProduct, { isLoading: addProductLoading, error: addProductError }] =
     useAddProductMutation();
-  const data = useMemo(() => {
-    return allProducts || [];
-  }, [allProducts]);
-  const { toast } = useToast();
+  const allCategoriesData = useMemo(() => {
+    return allCategories || [];
+  }, [allCategories]);
 
   const columnHelper = createColumnHelper();
 
   /** @type import('@tanstack/react-table').columnDef<any>*/
   const columns = [
-    columnHelper.accessor((row) => row._id, {
-      id: "Image",
-      cell: (info) => (
-        <img
-          alt="Product img"
-          className="aspect-square rounded-md object-cover"
-          height="64"
-          src={Bicycle}
-          width="64"
-        />
-      ),
-    }),
     {
-      accessorKey: "productName",
-      header: "Product",
-    },
-    {
-      accessorKey: "size",
-      header: "Size",
-    },
-    {
-      accessorKey: "color",
-      header: "Color",
-    },
-    {
-      accessorKey: "price",
-      header: "Price",
-    },
-    {
-      accessorKey: "brand.brandName",
-      header: "Brand",
-    },
-    {
-      accessorKey: "category.categoryName",
+      accessorKey: "categoryName",
       header: "Category",
+    },
+    {
+      accessorKey: "_id",
+      header: "ID",
+    },
+    {
+      accessorKey: "Sgst",
+      header: "State-Gst",
+    },
+    {
+      accessorKey: "Cgst",
+      header: "Center-Gst",
     },
     columnHelper.accessor((row) => row._id, {
       id: "Actions",
@@ -148,7 +130,7 @@ export function Products() {
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
-                navigate(`/products/editProduct/${info.getValue()}`)
+                navigate(`/products/addProduct/${info.getValue()}`)
               }
             >
               Edit
@@ -160,8 +142,8 @@ export function Products() {
     }),
   ];
 
-  const table = useReactTable({
-    data,
+  const allBrandstable = useReactTable({
+    data: allCategoriesData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -186,7 +168,7 @@ export function Products() {
   return (
     <>
       <div className="flex items-center pl-4">
-        <h1 className="text-lg font-semibold md:text-2xl">Products</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">Brands</h1>
       </div>
       <div className="flex min-h-[80vh] w-full flex-col bg-muted/40">
         <div className="flex flex-col sm:gap-4 sm:py-4 ">
@@ -195,11 +177,6 @@ export function Products() {
               <div className="flex items-center">
                 <TabsList>
                   <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="active">Active</TabsTrigger>
-                  <TabsTrigger value="draft">Draft</TabsTrigger>
-                  <TabsTrigger value="archived" className="hidden sm:flex">
-                    Archived
-                  </TabsTrigger>
                 </TabsList>
                 <div className="ml-auto flex items-center gap-2">
                   <Dialog>
@@ -207,15 +184,15 @@ export function Products() {
                       <Button size="sm" className="h-7 gap-1">
                         <PlusCircle className="h-3.5 w-3.5" />
                         <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                          Add Product
+                          Add Category
                         </span>
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md">
                       <DialogHeader>
-                        <DialogTitle>Add Product</DialogTitle>
+                        <DialogTitle>Add Category</DialogTitle>
                         <DialogDescription>
-                          Are you sure, you want to add a new product?
+                          Are you sure, you want to add a new category?
                         </DialogDescription>
                       </DialogHeader>
 
@@ -245,9 +222,9 @@ export function Products() {
               <TabsContent value="all" className="max-h-[70vh] overflow-y-auto">
                 <Card x-chunk="dashboard-06-chunk-0">
                   <CardHeader>
-                    <CardTitle>Products</CardTitle>
+                    <CardTitle>All Brands</CardTitle>
                     <CardDescription>
-                      Manage your products and view their sales performance.
+                      Check and manage all your brands
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -264,21 +241,23 @@ export function Products() {
                     ) : (
                       <Table>
                         <TableHeader>
-                          {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                              {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id}>
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                </TableHead>
-                              ))}
-                            </TableRow>
-                          ))}
+                          {allBrandstable
+                            .getHeaderGroups()
+                            .map((headerGroup) => (
+                              <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                  <TableHead key={header.id}>
+                                    {flexRender(
+                                      header.column.columnDef.header,
+                                      header.getContext()
+                                    )}
+                                  </TableHead>
+                                ))}
+                              </TableRow>
+                            ))}
                         </TableHeader>
                         <TableBody>
-                          {table.getRowModel().rows.map((row) => (
+                          {allBrandstable.getRowModel().rows.map((row) => (
                             <TableRow key={row.id}>
                               {row.getVisibleCells().map((cell) => (
                                 <TableCell key={cell.id}>
@@ -297,7 +276,7 @@ export function Products() {
                   <CardFooter>
                     <div className="text-xs text-muted-foreground">
                       Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-                      products
+                      brands
                     </div>
                   </CardFooter>
                 </Card>

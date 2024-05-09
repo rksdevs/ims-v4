@@ -10,6 +10,8 @@ import {
   Search,
   ShoppingCart,
   Users,
+  Layers3,
+  Tags,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -70,8 +72,22 @@ const SideNavbar = () => {
               Products{" "}
             </Link>
             <Link
+              to="/brands"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary text-muted-foreground"
+            >
+              <Tags className="h-4 w-4" />
+              Brands{" "}
+            </Link>
+            <Link
+              to="/categories"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary text-muted-foreground"
+            >
+              <Layers3 className="h-4 w-4" />
+              Categories{" "}
+            </Link>
+            <Link
               to="/customers"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              className="hidden flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
               <Users className="h-4 w-4" />
               Customers

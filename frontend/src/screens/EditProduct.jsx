@@ -13,7 +13,7 @@ import {
   Users2,
 } from "lucide-react";
 import Bicycle from "../components/assets/images/ProductImg.jpg";
-
+import { Skeleton } from "../components/ui/skeleton";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
@@ -59,6 +59,8 @@ import {
 } from "../components/ui/tooltip";
 import { useParams } from "react-router-dom";
 import { useGetSpecificProductQuery } from "../Features/productApiSlice";
+import { useGetAllBrandsQuery } from "../Features/brandApiSlice";
+import { useGetAllCategoriesQuery } from "../Features/categoryApiSlice";
 
 export function EditProduct() {
   const { id: productId } = useParams();
@@ -67,6 +69,16 @@ export function EditProduct() {
     isLoading,
     error,
   } = useGetSpecificProductQuery(productId);
+  const {
+    data: allBrands,
+    isLoading: brandsLoading,
+    error: brandsError,
+  } = useGetAllBrandsQuery();
+  const {
+    data: allCategories,
+    isLoading: loadingCategories,
+    error: errorCategories,
+  } = useGetAllCategoriesQuery();
   return (
     <>
       <div className="flex items-center pl-4">
@@ -103,7 +115,7 @@ export function EditProduct() {
                               <Label htmlFor="description">Description</Label>
                               <Textarea
                                 id="description"
-                                defaultValue="Describe your product"
+                                defaultValue={productDetails.description}
                                 className="min-h-14"
                               />
                             </div>
@@ -118,8 +130,10 @@ export function EditProduct() {
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="w-[100px]">SKU</TableHead>
-                                <TableHead>Stock</TableHead>
+                                <TableHead className="w-[100px]">
+                                  Stock
+                                </TableHead>
+                                <TableHead>Color</TableHead>
                                 <TableHead>Price</TableHead>
                                 <TableHead className="w-[100px]">
                                   Size
@@ -135,7 +149,7 @@ export function EditProduct() {
                                   <Input
                                     id="stock-1"
                                     type="number"
-                                    defaultValue="100"
+                                    defaultValue={productDetails.quantity}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -145,7 +159,7 @@ export function EditProduct() {
                                   <Input
                                     id="color"
                                     type="text"
-                                    defaultValue="Black"
+                                    defaultValue={productDetails.color}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -155,7 +169,7 @@ export function EditProduct() {
                                   <Input
                                     id="price-1"
                                     type="number"
-                                    defaultValue="99.99"
+                                    defaultValue={productDetails.price}
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -165,7 +179,7 @@ export function EditProduct() {
                                   <Input
                                     id="size"
                                     type="text"
-                                    defaultValue="10"
+                                    defaultValue={productDetails.size}
                                   />
                                 </TableCell>
                               </TableRow>
@@ -189,15 +203,29 @@ export function EditProduct() {
                                   <SelectValue placeholder="Select brand" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="clothing">
-                                    Clothing
-                                  </SelectItem>
-                                  <SelectItem value="electronics">
-                                    Electronics
-                                  </SelectItem>
-                                  <SelectItem value="accessories">
-                                    Accessories
-                                  </SelectItem>
+                                  {brandsLoading ? (
+                                    <SelectItem>
+                                      <Skeleton className="h-4 w-[100px]" />
+                                    </SelectItem>
+                                  ) : brandsError ? (
+                                    <SelectItem>
+                                      Something went wrong!
+                                    </SelectItem>
+                                  ) : (
+                                    allBrands.map((brand) => (
+                                      <SelectItem
+                                        value={brand._id}
+                                        key={brand._id}
+                                        disabled={
+                                          brand.status === "Inactive"
+                                            ? true
+                                            : false
+                                        }
+                                      >
+                                        {brand.brandName}
+                                      </SelectItem>
+                                    ))
+                                  )}
                                 </SelectContent>
                               </Select>
                             </div>
@@ -211,15 +239,24 @@ export function EditProduct() {
                                   <SelectValue placeholder="Select category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="t-shirts">
-                                    T-Shirts
-                                  </SelectItem>
-                                  <SelectItem value="hoodies">
-                                    Hoodies
-                                  </SelectItem>
-                                  <SelectItem value="sweatshirts">
-                                    Sweatshirts
-                                  </SelectItem>
+                                  {loadingCategories ? (
+                                    <SelectItem>
+                                      <Skeleton className="h-4 w-[100px]" />
+                                    </SelectItem>
+                                  ) : errorCategories ? (
+                                    <SelectItem>
+                                      Something went wrong!
+                                    </SelectItem>
+                                  ) : (
+                                    allCategories.map((category) => (
+                                      <SelectItem
+                                        value={category._id}
+                                        key={category._id}
+                                      >
+                                        {category.categoryName}
+                                      </SelectItem>
+                                    ))
+                                  )}
                                 </SelectContent>
                               </Select>
                             </div>
@@ -233,7 +270,7 @@ export function EditProduct() {
                         x-chunk="dashboard-07-chunk-4"
                       >
                         <CardHeader>
-                          <CardTitle>Product imgs</CardTitle>
+                          <CardTitle>Product images</CardTitle>
                           <CardDescription>
                             Lipsum dolor sit amet, consectetur adipiscing elit
                           </CardDescription>
@@ -279,7 +316,6 @@ export function EditProduct() {
                           <CardTitle>Save Product</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div></div>
                           <Button size="sm">Save</Button>
                         </CardContent>
                       </Card>

@@ -30,8 +30,19 @@ const productApiSlice = apiSlice.injectEndpoints({
             }),
             keepUnusedDataFor: 5,
             providesTags: ['Products']
-        })
+        }),
+        editProduct: builder.mutation({
+            query: (productId, data) => ({
+                url: `${PRODUCTS_URL}/updateProduct/${productId}`,
+                method:'PUT',
+                body: data,
+                headers: {"Content-Type":"application/json"},
+                credentials: 'include'
+            }),
+            keepUnusedDataFor: 5,
+            providesTags: ['Products']
+        }),
     })
 }) 
 
-export const {useGetAllProductsQuery, useAddProductMutation, useGetSpecificProductQuery} = productApiSlice
+export const {useGetAllProductsQuery, useAddProductMutation, useGetSpecificProductQuery, useEditProductMutation} = productApiSlice

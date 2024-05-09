@@ -13,6 +13,9 @@ import { Register } from './screens/Register';
 import PrivateRoute from './components/PrivateRoute';
 import { Products } from './screens/Products';
 import { EditProduct } from './screens/EditProduct';
+import { Brands } from './screens/Brands';
+import { Category } from './screens/Category';
+import { EditBrand } from './screens/EditBrand';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -25,7 +28,10 @@ const router = createBrowserRouter(createRoutesFromElements(
       <Route path='/sample' element={<Sample />} />
       <Route path='/orders' element={<Orders />} />
       <Route path='/products' element={<Products />} />
-      <Route path='/products/addProduct/:id' element={<EditProduct />} />
+      <Route path='/products/editProduct/:id' element={<EditProduct />} />
+      <Route path='/brands' element={<Brands />} />
+      <Route path='/categories' element={<Category />} />
+      <Route path='/brands/editBrand/:id' element={<EditBrand />} />
     </Route>
   </Route>
 ))
