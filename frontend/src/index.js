@@ -16,6 +16,7 @@ import { EditProduct } from './screens/EditProduct';
 import { Brands } from './screens/Brands';
 import { Category } from './screens/Category';
 import { EditBrand } from './screens/EditBrand';
+import { EditCategory } from './screens/EditCategory';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -32,6 +33,7 @@ const router = createBrowserRouter(createRoutesFromElements(
       <Route path='/brands' element={<Brands />} />
       <Route path='/categories' element={<Category />} />
       <Route path='/brands/editBrand/:id' element={<EditBrand />} />
+      <Route path='/categories/editCategory/:id' element={<EditCategory />} />
     </Route>
   </Route>
 ))

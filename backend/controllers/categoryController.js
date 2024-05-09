@@ -5,29 +5,20 @@ const addCategory = async (req, res) => {
 
     try {
 
-        const newCategory = new Category ({
-            categoryName: req.body.categoryName,
-            Sgst: req.body.Sgst,
-            Cgst: req.body.Cgst
-        })
-
         //check if the user is an Admin
         const admin = req.user.isAdmin;
         if(!admin) {
             return res.status(400).send({message: "User must be an admin to add a brand!"})
         }
-
-        //check if the same brand exists
-        const existingCategory = await Category.findOne({categoryName: req.body.categoryName});
-
-        if(existingCategory) {
-            return res.status(400).send({message: "Category Already Exists!"})
-        }
+        const category = new Category({
+            categoryName: "Sample Category",
+            Sgst: 0,
+            Cgst: 0
+        })
 
     
-        await newCategory.save();
-        const {categoryName, Sgst, Cgst} = newCategory._doc;
-        res.status(200).send({categoryName, Sgst, Cgst})
+        const newCategory = await category.save();
+        res.status(200).json(newCategory)
         
     } catch (error) {
         console.log(error);
@@ -38,6 +29,7 @@ const addCategory = async (req, res) => {
 }
 
 const editCategory = async(req,res) => {
+    const {categoryName, Sgst, Cgst} = req.body
     try {
         //check if the user is an Admin
         const admin = req.user.isAdmin;
@@ -45,7 +37,15 @@ const editCategory = async(req,res) => {
             return res.status(400).send({message: "User must be an admin to update a category!"})
         }
 
-        const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        const categoryToUpdate = await Category.findById(req.params.id);
+
+        if (categoryToUpdate) {
+            categoryToUpdate.categoryName = categoryName;
+            categoryToUpdate.Sgst = Sgst;
+            categoryToUpdate.Cgst = Cgst;
+        }
+
+        const updatedCategory = await categoryToUpdate.save()
 
         res.status(200).json(updatedCategory)
         
@@ -90,4 +90,21 @@ const getAllCategories = async(req,res) => {
     }
 }
 
-module.exports = {addCategory, editCategory, deleteCategory, getAllCategories}
+const getSpecificCategory = async(req,res) => {
+    try {
+        const verifyAdmin = req.user.isAdmin;
+      if(!verifyAdmin) {
+          return res.status(400).json({message: "Unauthorized!"});
+      }
+        const projection = {categoryName: 1, Cgst: 1, Sgst: 1}
+        const specificCategory = await Category.findById(req.params.id).select(projection);
+        res.status(200).json(specificCategory)
+        
+    } catch (error) {
+        console.log(error);
+        return res.send(500).json(error);
+        
+    }
+}
+
+module.exports = {addCategory, editCategory, deleteCategory, getAllCategories, getSpecificCategory}

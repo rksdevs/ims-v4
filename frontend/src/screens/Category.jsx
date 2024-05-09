@@ -79,7 +79,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ui/use-toast";
 import { useGetAllBrandsQuery } from "../Features/brandApiSlice";
-import { useGetAllCategoriesQuery } from "../Features/categoryApiSlice";
+import {
+  useAddCategoryMutation,
+  useDeleteCategoryMutation,
+  useGetAllCategoriesQuery,
+} from "../Features/categoryApiSlice";
 
 export function Category() {
   const { toast } = useToast();
@@ -90,8 +94,9 @@ export function Category() {
     error,
     refetch,
   } = useGetAllCategoriesQuery();
-  const [addProduct, { isLoading: addProductLoading, error: addProductError }] =
-    useAddProductMutation();
+  const [addCategory, { error: addCategoryError }] = useAddCategoryMutation();
+  const [deleteCategory, { error: deleteCategoryError }] =
+    useDeleteCategoryMutation();
   const allCategoriesData = useMemo(() => {
     return allCategories || [];
   }, [allCategories]);
@@ -130,12 +135,16 @@ export function Category() {
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
-                navigate(`/products/addProduct/${info.getValue()}`)
+                navigate(`/categories/editCategory/${info.getValue()}`)
               }
             >
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => handleDeleteCategory(e, info.getValue())}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -148,18 +157,38 @@ export function Category() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleAddProduct = async () => {
+  const handleAddCategory = async () => {
     try {
-      const res = await addProduct().unwrap();
+      const res = await addCategory().unwrap();
+      refetch();
       toast({
-        title: "Added New Product",
+        title: "Added New Category",
         description: `${res._id}`,
       });
-      refetch();
     } catch (error) {
       toast({
-        title: "Failed to add product",
-        description: error?.message || error?.data?.message,
+        title: "Failed to add category!",
+        description:
+          addCategoryError.message || error?.message || error?.data?.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteCategory = async (e, categoryId) => {
+    e.preventDefault();
+    try {
+      await deleteCategory(categoryId).unwrap();
+      refetch();
+      toast({
+        title: "Deleted category successfully!",
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error deleting category!",
+        description:
+          deleteCategoryError.message || error?.message || error?.data?.message,
         variant: "destructive",
       });
     }
@@ -168,7 +197,7 @@ export function Category() {
   return (
     <>
       <div className="flex items-center pl-4">
-        <h1 className="text-lg font-semibold md:text-2xl">Brands</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">Categories</h1>
       </div>
       <div className="flex min-h-[80vh] w-full flex-col bg-muted/40">
         <div className="flex flex-col sm:gap-4 sm:py-4 ">
@@ -201,7 +230,7 @@ export function Category() {
                           <div>
                             <Button
                               className="flex-1"
-                              onClick={handleAddProduct}
+                              onClick={handleAddCategory}
                             >
                               Yes
                             </Button>
