@@ -7,6 +7,8 @@ import {
   ListFilter,
   MoreVertical,
   Truck,
+  FileInput,
+  IndianRupee,
 } from "lucide-react";
 
 import { Badge } from "../components/ui/badge";
@@ -50,20 +52,43 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import { useGetAllOrdersQuery } from "../Features/orderApiSlice";
+import {
+  useGetAllOrdersQuery,
+  useGetSpecificOrderDetailsQuery,
+} from "../Features/orderApiSlice";
 import { useEffect, useMemo, useState } from "react";
 import {
   useReactTable,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
+  createColumnHelper,
 } from "@tanstack/react-table";
 import { Skeleton } from "../components/ui/skeleton";
+import { useNavigate } from "react-router-dom";
 
 export function Orders() {
   const { data: allOrders, isLoading, error } = useGetAllOrdersQuery();
   const data = useMemo(() => {
     return allOrders || [];
   }, [allOrders]);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 4,
+  });
+  const [previewOrderId, setPreviewOrderId] = useState("");
+  const [loadPreviewCard, setLoadPreviewCard] = useState(false);
+  const navigate = useNavigate();
+
+  const {
+    data: specificOrderData,
+    isLoading: loadingSpecificOrderDetails,
+    error: errorSpecificOrderDetails,
+  } = useGetSpecificOrderDetailsQuery(previewOrderId, {
+    skip: !loadPreviewCard,
+  });
+
+  const columnHelper = createColumnHelper();
 
   /** @type import('@tanstack/react-table').columnDef<any>*/
   const columns = [
@@ -87,13 +112,38 @@ export function Orders() {
       accessorKey: "_id",
       header: "ID",
     },
+    columnHelper.accessor((row) => row._id, {
+      id: "Preview",
+      cell: (info) => (
+        <Button
+          aria-haspopup="true"
+          size="icon"
+          variant="ghost"
+          onClick={() => setPreviewOrderId(info.getValue())}
+        >
+          <FileInput className="h-4 w-4" />
+          <span className="sr-only">Preview</span>
+        </Button>
+      ),
+    }),
   ];
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    state: {
+      pagination,
+    },
   });
+
+  useEffect(() => {
+    if (allOrders) {
+      setPreviewOrderId(allOrders[0]._id);
+      setLoadPreviewCard(true);
+    }
+  }, [allOrders]);
 
   return (
     <>
@@ -114,7 +164,9 @@ export function Orders() {
                     </CardDescription>
                   </CardHeader>
                   <CardFooter>
-                    <Button>Create New Order</Button>
+                    <Button onClick={() => navigate("/products")}>
+                      Create New Order
+                    </Button>
                   </CardFooter>
                 </Card>
                 <Card x-chunk="dashboard-05-chunk-1">
@@ -210,7 +262,11 @@ export function Orders() {
                           </div>
                         </>
                       ) : error ? (
-                        <>Something went wrong</>
+                        <>
+                          {" "}
+                          Status Code: {error.status}{" "}
+                          {JSON.stringify(error.data)}
+                        </>
                       ) : (
                         <Table>
                           <TableHeader>
@@ -244,161 +300,199 @@ export function Orders() {
                         </Table>
                       )}
                     </CardContent>
+                    <CardFooter>
+                      <div className="text-xs text-muted-foreground">
+                        <Pagination>
+                          <PaginationContent>
+                            <PaginationItem>
+                              <Button
+                                variant="ghost"
+                                onClick={() => table.firstPage()}
+                                disabled={!table.getCanPreviousPage()}
+                              >
+                                First Page
+                              </Button>
+                            </PaginationItem>
+                            <PaginationItem>
+                              <Button
+                                variant="ghost"
+                                onClick={() => table.previousPage()}
+                                disabled={!table.getCanPreviousPage()}
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                              </Button>
+                            </PaginationItem>
+
+                            <PaginationItem>
+                              <Button
+                                variant="ghost"
+                                onClick={() => table.nextPage()}
+                                disabled={!table.getCanNextPage()}
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </Button>
+                            </PaginationItem>
+                            <PaginationItem>
+                              <Button
+                                variant="ghost"
+                                onClick={() => table.lastPage()}
+                                disabled={!table.getCanNextPage()}
+                              >
+                                Last Page
+                              </Button>
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </div>
+                    </CardFooter>
                   </Card>
                 </TabsContent>
               </Tabs>
             </div>
             <div>
-              <Card className="overflow-hidden" x-chunk="dashboard-05-chunk-4">
-                <CardHeader className="flex flex-row bg-muted/50 p-6 items-center">
-                  <div className="grid gap-0.5">
-                    <CardTitle className="group flex items-center gap-2 text-lg">
-                      Oe31b70H
+              {loadingSpecificOrderDetails ? (
+                <>
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                  </div>
+                </>
+              ) : errorSpecificOrderDetails ? (
+                <>
+                  Error Status: {errorSpecificOrderDetails.status} Error
+                  Details: {errorSpecificOrderDetails.data}
+                </>
+              ) : (
+                <Card
+                  className="overflow-hidden"
+                  x-chunk="dashboard-05-chunk-4"
+                >
+                  <CardHeader className="flex flex-row bg-muted/50 p-6 items-center">
+                    <div className="grid gap-0.5">
+                      <CardTitle className="group flex items-center gap-2 text-lg">
+                        {specificOrderData?.billNumber || "Bill"}
+                      </CardTitle>
+                    </div>
+                    <div className="ml-auto flex items-center gap-1">
                       <Button
-                        size="icon"
+                        size="sm"
                         variant="outline"
-                        className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                        className="h-8 gap-1"
+                        disabled
                       >
-                        <Copy className="h-3 w-3" />
-                        <span className="sr-only">Copy Order ID</span>
+                        <Truck className="h-3.5 w-3.5" />
+                        <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
+                          Actions
+                        </span>
                       </Button>
-                    </CardTitle>
-                  </div>
-                  <div className="ml-auto flex items-center gap-1">
-                    <Button size="sm" variant="outline" className="h-8 gap-1">
-                      <Truck className="h-3.5 w-3.5" />
-                      <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-                        Track Order
-                      </span>
-                    </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8"
-                        >
-                          <MoreVertical className="h-3.5 w-3.5" />
-                          <span className="sr-only">More</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Export</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Trash</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 text-sm">
-                  <div className="grid gap-3">
-                    <div className="font-semibold">Order Details</div>
-                    <ul className="grid gap-3">
-                      <li className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          Glimmer Lamps x <span>2</span>
-                        </span>
-                        <span>$250.00</span>
-                      </li>
-                      <li className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          Aqua Filters x <span>1</span>
-                        </span>
-                        <span>$49.00</span>
-                      </li>
-                    </ul>
-                    <Separator className="my-2" />
-                    <ul className="grid gap-3">
-                      <li className="flex items-center justify-between font-semibold">
-                        <span className="text-muted-foreground">Total</span>
-                        <span>$329.00</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <Separator className="my-4" />
-                  <div className="grid grid-cols-2 gap-4 hidden">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8"
+                          >
+                            <MoreVertical className="h-3.5 w-3.5" />
+                            <span className="sr-only">More</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem>Export</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>Trash</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 text-sm">
                     <div className="grid gap-3">
-                      <div className="font-semibold">Shipping Information</div>
-                      <address className="grid gap-0.5 not-italic text-muted-foreground">
-                        <span>Liam Johnson</span>
-                        <span>1234 Main St.</span>
-                        <span>Anytown, CA 12345</span>
-                      </address>
+                      <div className="font-semibold">Order Details</div>
+                      <ul className="grid gap-3">
+                        {specificOrderData?.items?.map((item) => (
+                          <li
+                            key={item._id}
+                            className="flex items-center justify-between"
+                          >
+                            <span className="text-muted-foreground">
+                              {item.productName} x <span>{item.quantity}</span>
+                            </span>
+                            <span>
+                              ₹
+                              {(item.price +
+                                (item.price * item.Sgst) / 100 +
+                                (item.price * item.Cgst) / 100) *
+                                item.quantity}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Separator className="my-2" />
+                      <ul className="grid gap-3">
+                        <li className="flex items-center justify-between font-semibold">
+                          <span className="text-muted-foreground">
+                            Gross Amount
+                          </span>
+                          <span>₹{specificOrderData?.itemsPrice}</span>
+                        </li>
+                        <li className="flex items-center justify-between font-semibold">
+                          <span className="text-muted-foreground">
+                            Discount
+                          </span>
+                          <span>{specificOrderData?.discount}%</span>
+                        </li>
+                        <li className="flex items-center justify-between font-semibold">
+                          <span className="text-muted-foreground">Total</span>
+                          <span>₹{specificOrderData?.netAmount}</span>
+                        </li>
+                      </ul>
                     </div>
-                    <div className="grid auto-rows-max gap-3">
-                      <div className="font-semibold">Billing Information</div>
-                      <div className="text-muted-foreground">
-                        Same as shipping address
-                      </div>
+                    <Separator className="my-4" />
+                    <div className="grid gap-3">
+                      <div className="font-semibold">Customer Information</div>
+                      <dl className="grid gap-3">
+                        <div className="flex items-center justify-between">
+                          <dt className="text-muted-foreground">Customer</dt>
+                          <dd>{specificOrderData?.custName}</dd>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <dt className="text-muted-foreground">Address</dt>
+                          <dd>
+                            <a href="mailto:">
+                              {specificOrderData?.custAddress?.length > 15
+                                ? specificOrderData?.custAddress.substring(
+                                    0,
+                                    15
+                                  ) + "..."
+                                : specificOrderData?.custAddress}
+                            </a>
+                          </dd>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <dt className="text-muted-foreground">Phone</dt>
+                          <dd>
+                            <a href="tel:">{specificOrderData?.custPhone}</a>
+                          </dd>
+                        </div>
+                      </dl>
                     </div>
-                  </div>
-                  <Separator className="my-4 hidden" />
-                  <div className="grid gap-3">
-                    <div className="font-semibold">Customer Information</div>
-                    <dl className="grid gap-3">
-                      <div className="flex items-center justify-between">
-                        <dt className="text-muted-foreground">Customer</dt>
-                        <dd>Liam Johnson</dd>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <dt className="text-muted-foreground">Email</dt>
-                        <dd>
-                          <a href="mailto:">liam@acme.com</a>
-                        </dd>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <dt className="text-muted-foreground">Phone</dt>
-                        <dd>
-                          <a href="tel:">+1 234 567 890</a>
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                  <Separator className="my-4" />
-                  <div className="grid gap-3">
-                    <div className="font-semibold">Payment Information</div>
-                    <dl className="grid gap-3">
-                      <div className="flex items-center justify-between">
-                        <dt className="flex items-center gap-1 text-muted-foreground">
-                          <CreditCard className="h-4 w-4" />
-                          Visa
-                        </dt>
-                        <dd>**** **** **** 4532</dd>
-                      </div>
-                    </dl>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-                  <div className="text-xs text-muted-foreground">
-                    Updated <time dateTime="2023-11-23">November 23, 2023</time>
-                  </div>
-                  <Pagination className="ml-auto mr-0 w-auto">
-                    <PaginationContent>
-                      <PaginationItem>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-6 w-6"
-                        >
-                          <ChevronLeft className="h-3.5 w-3.5" />
-                          <span className="sr-only">Previous Order</span>
-                        </Button>
-                      </PaginationItem>
-                      <PaginationItem>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-6 w-6"
-                        >
-                          <ChevronRight className="h-3.5 w-3.5" />
-                          <span className="sr-only">Next Order</span>
-                        </Button>
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </CardFooter>
-              </Card>
+                    <Separator className="my-4" />
+                    <div className="grid gap-3">
+                      <div className="font-semibold">Payment Information</div>
+                      <dl className="grid gap-3">
+                        <div className="flex items-center justify-between">
+                          <dt className="flex items-center gap-1 text-muted-foreground">
+                            <IndianRupee className="h-4 w-4" />
+                            Method
+                          </dt>
+                          <dd>{specificOrderData?.methodOfPayment}</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </main>
         </div>

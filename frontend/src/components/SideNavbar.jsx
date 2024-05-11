@@ -1,17 +1,15 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   Bell,
-  CircleUser,
   Home,
   LineChart,
-  Menu,
   Package,
   Package2,
-  Search,
   ShoppingCart,
   Users,
   Layers3,
   Tags,
+  ScrollText,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -22,9 +20,11 @@ import {
   CardDescription,
   CardContent,
 } from "./ui/card";
+import { useSelector } from "react-redux";
 
 const SideNavbar = () => {
   const location = useLocation();
+  const { items } = useSelector((state) => state.cart);
   const checkLocation = () => {
     const orderPage = location.pathname.includes("/orders");
     const productsPage = location.pathname.includes("/products");
@@ -58,11 +58,8 @@ const SideNavbar = () => {
               to="/orders"
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
-              <ShoppingCart className="h-4 w-4" />
+              <ScrollText className="h-4 w-4" />
               Orders
-              <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                6
-              </Badge>
             </Link>
             <Link
               to="/products"
@@ -91,6 +88,20 @@ const SideNavbar = () => {
             >
               <Users className="h-4 w-4" />
               Customers
+            </Link>
+            <Link
+              to="/cart"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Cart
+              <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                {items.length
+                  ? items.reduce((sum, currentItem) => {
+                      return sum + currentItem.quantity;
+                    }, 0)
+                  : 0}
+              </Badge>
             </Link>
             <Link
               to="/analytics"

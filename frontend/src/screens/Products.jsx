@@ -9,6 +9,8 @@ import {
   Truck,
   PlusCircle,
   MoreHorizontal,
+  ChevronFirst,
+  ChevronLast,
 } from "lucide-react";
 import Bicycle from "../components/assets/images/Bicycle.jpg";
 import { Badge } from "../components/ui/badge";
@@ -63,6 +65,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { useGetAllOrdersQuery } from "../Features/orderApiSlice";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -70,6 +81,7 @@ import {
   flexRender,
   getCoreRowModel,
   createColumnHelper,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import { Skeleton } from "../components/ui/skeleton";
 import {
@@ -78,9 +90,18 @@ import {
 } from "../Features/productApiSlice";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/ui/use-toast";
+import { tab } from "@testing-library/user-event/dist/tab";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../Features/cartSlice";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "../components/ui/hover-card";
 
 export function Products() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const {
     data: allProducts,
     isLoading,
@@ -93,6 +114,10 @@ export function Products() {
     return allProducts || [];
   }, [allProducts]);
   const { toast } = useToast();
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 4,
+  });
 
   const columnHelper = createColumnHelper();
 
@@ -130,10 +155,72 @@ export function Products() {
       accessorKey: "brand.brandName",
       header: "Brand",
     },
-    {
-      accessorKey: "category.categoryName",
-      header: "Category",
-    },
+    // {
+    //   accessorKey: "category.categoryName",
+    //   header: "Category",
+    // },
+    columnHelper.accessor((row) => row.category, {
+      id: "Category",
+      cell: (info) => (
+        <>
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <Button variant="secondary">
+                {info.getValue().categoryName}
+              </Button>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-50">
+              <div className="flex justify-between space-x-4">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold">
+                    {info.getValue().categoryName}
+                  </h4>
+                  <p className="text-sm">Sgst - {info.getValue().Sgst} %</p>
+                  <p className="text-sm">Cgst - {info.getValue().Cgst} %</p>
+                </div>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        </>
+      ),
+    }),
+    columnHelper.accessor((row) => row, {
+      id: "Add To Cart",
+      cell: (info) => (
+        <>
+          {/* <Button
+            variant="outline"
+            onClick={(e) => console.log(info.getValue())}
+          >
+            Add
+          </Button> */}
+          <Select
+            onValueChange={(qty) => addToCartHandler(info.getValue(), qty)}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Add to Cart" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>No of Items</SelectLabel>
+                {Array.from({ length: info.getValue().quantity }).map(
+                  (_, index) => (
+                    <SelectItem value={index + 1} key={index}>
+                      {index + 1}
+                    </SelectItem>
+                  )
+                )}
+                {/* <SelectItem value="apple">Apple</SelectItem>
+                <SelectItem value="banana">Banana</SelectItem>
+                <SelectItem value="blueberry">Blueberry</SelectItem>
+                <SelectItem value="grapes">Grapes</SelectItem>
+                <SelectItem value="pineapple">Pineapple</SelectItem> */}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </>
+      ),
+    }),
     columnHelper.accessor((row) => row._id, {
       id: "Actions",
       cell: (info) => (
@@ -164,6 +251,11 @@ export function Products() {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
+    state: {
+      pagination,
+    },
   });
 
   const handleAddProduct = async () => {
@@ -181,6 +273,21 @@ export function Products() {
         variant: "destructive",
       });
     }
+  };
+
+  const addToCartHandler = (itemInfo, qty) => {
+    // e.preventDefault();
+    console.log({ ...itemInfo }, qty);
+    const payload = {
+      productName: itemInfo.productName,
+      quantity: qty,
+      _id: itemInfo._id,
+      price: itemInfo.price,
+      Sgst: itemInfo.category.Sgst,
+      Cgst: itemInfo.category.Cgst,
+    };
+    dispatch(addToCart({ ...payload }));
+    console.log(payload);
   };
 
   return (
@@ -296,8 +403,47 @@ export function Products() {
                   </CardContent>
                   <CardFooter>
                     <div className="text-xs text-muted-foreground">
-                      Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-                      products
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => table.firstPage()}
+                              disabled={!table.getCanPreviousPage()}
+                            >
+                              First Page
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => table.previousPage()}
+                              disabled={!table.getCanPreviousPage()}
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => table.nextPage()}
+                              disabled={!table.getCanNextPage()}
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => table.lastPage()}
+                              disabled={!table.getCanNextPage()}
+                            >
+                              Last Page
+                            </Button>
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
                     </div>
                   </CardFooter>
                 </Card>

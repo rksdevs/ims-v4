@@ -70,6 +70,7 @@ import {
   flexRender,
   getCoreRowModel,
   createColumnHelper,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import { Skeleton } from "../components/ui/skeleton";
 import {
@@ -109,6 +110,10 @@ export function Brands() {
     return inActiveBrands;
   }, [allBrands]);
   const { toast } = useToast();
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 5,
+  });
 
   const columnHelper = createColumnHelper();
 
@@ -158,18 +163,33 @@ export function Brands() {
     data: allBrandsData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
+    state: {
+      pagination,
+    },
   });
 
   const activeBrandstable = useReactTable({
     data: activeBrandData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
+    state: {
+      pagination,
+    },
   });
 
   const inActiveBrandstable = useReactTable({
     data: inActiveBrandData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
+    state: {
+      pagination,
+    },
   });
 
   const handleAddBrand = async () => {
@@ -316,8 +336,47 @@ export function Brands() {
                   </CardContent>
                   <CardFooter>
                     <div className="text-xs text-muted-foreground">
-                      Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-                      brands
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => allBrandstable.firstPage()}
+                              disabled={!allBrandstable.getCanPreviousPage()}
+                            >
+                              First Page
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => allBrandstable.previousPage()}
+                              disabled={!allBrandstable.getCanPreviousPage()}
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => allBrandstable.nextPage()}
+                              disabled={!allBrandstable.getCanNextPage()}
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => allBrandstable.lastPage()}
+                              disabled={!allBrandstable.getCanNextPage()}
+                            >
+                              Last Page
+                            </Button>
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
                     </div>
                   </CardFooter>
                 </Card>
@@ -381,8 +440,47 @@ export function Brands() {
                   </CardContent>
                   <CardFooter>
                     <div className="text-xs text-muted-foreground">
-                      Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-                      brands
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => activeBrandstable.firstPage()}
+                              disabled={!activeBrandstable.getCanPreviousPage()}
+                            >
+                              First Page
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => activeBrandstable.previousPage()}
+                              disabled={!activeBrandstable.getCanPreviousPage()}
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => activeBrandstable.nextPage()}
+                              disabled={!activeBrandstable.getCanNextPage()}
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => activeBrandstable.lastPage()}
+                              disabled={!activeBrandstable.getCanNextPage()}
+                            >
+                              Last Page
+                            </Button>
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
                     </div>
                   </CardFooter>
                 </Card>
@@ -446,8 +544,51 @@ export function Brands() {
                   </CardContent>
                   <CardFooter>
                     <div className="text-xs text-muted-foreground">
-                      Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-                      brands
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => inActiveBrandstable.firstPage()}
+                              disabled={
+                                !inActiveBrandstable.getCanPreviousPage()
+                              }
+                            >
+                              First Page
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => inActiveBrandstable.previousPage()}
+                              disabled={
+                                !inActiveBrandstable.getCanPreviousPage()
+                              }
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => inActiveBrandstable.nextPage()}
+                              disabled={!inActiveBrandstable.getCanNextPage()}
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => inActiveBrandstable.lastPage()}
+                              disabled={!inActiveBrandstable.getCanNextPage()}
+                            >
+                              Last Page
+                            </Button>
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
                     </div>
                   </CardFooter>
                 </Card>

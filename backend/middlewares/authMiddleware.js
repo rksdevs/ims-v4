@@ -10,7 +10,7 @@ const verifyAdmin = async (req,res, next) => {
         // console.log(token)
 
         if(!token) {
-            return res.status(400).send({message:"No Authorization Cookie Found!"})
+            return res.status(400).send({message:"No Authorization Cookie Found! Please login or register"})
         }
 
         jwt.verify(token, process.env.JWT_SECRET, async(error, decoded)=>{

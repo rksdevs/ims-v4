@@ -70,6 +70,7 @@ import {
   flexRender,
   getCoreRowModel,
   createColumnHelper,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import { Skeleton } from "../components/ui/skeleton";
 import {
@@ -100,6 +101,11 @@ export function Category() {
   const allCategoriesData = useMemo(() => {
     return allCategories || [];
   }, [allCategories]);
+
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 5,
+  });
 
   const columnHelper = createColumnHelper();
 
@@ -151,10 +157,14 @@ export function Category() {
     }),
   ];
 
-  const allBrandstable = useReactTable({
+  const allCategoriesstable = useReactTable({
     data: allCategoriesData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    state: {
+      pagination,
+    },
   });
 
   const handleAddCategory = async () => {
@@ -270,7 +280,7 @@ export function Category() {
                     ) : (
                       <Table>
                         <TableHeader>
-                          {allBrandstable
+                          {allCategoriesstable
                             .getHeaderGroups()
                             .map((headerGroup) => (
                               <TableRow key={headerGroup.id}>
@@ -286,7 +296,7 @@ export function Category() {
                             ))}
                         </TableHeader>
                         <TableBody>
-                          {allBrandstable.getRowModel().rows.map((row) => (
+                          {allCategoriesstable.getRowModel().rows.map((row) => (
                             <TableRow key={row.id}>
                               {row.getVisibleCells().map((cell) => (
                                 <TableCell key={cell.id}>
@@ -304,8 +314,51 @@ export function Category() {
                   </CardContent>
                   <CardFooter>
                     <div className="text-xs text-muted-foreground">
-                      Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-                      brands
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => allCategoriesstable.firstPage()}
+                              disabled={
+                                !allCategoriesstable.getCanPreviousPage()
+                              }
+                            >
+                              First Page
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => allCategoriesstable.previousPage()}
+                              disabled={
+                                !allCategoriesstable.getCanPreviousPage()
+                              }
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => allCategoriesstable.nextPage()}
+                              disabled={!allCategoriesstable.getCanNextPage()}
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              onClick={() => allCategoriesstable.lastPage()}
+                              disabled={!allCategoriesstable.getCanNextPage()}
+                            >
+                              Last Page
+                            </Button>
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
                     </div>
                   </CardFooter>
                 </Card>

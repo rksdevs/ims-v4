@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import {
   Bell,
   CircleUser,
@@ -7,6 +7,7 @@ import {
   Menu,
   Package,
   Package2,
+  RefreshCw,
   Search,
   ShoppingCart,
   Users,
@@ -31,8 +32,32 @@ import {
   DropdownMenuItem,
 } from "./ui/dropdown-menu";
 import { ModeToggle } from "./theme-toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../components/ui/tooltip";
+import { useDispatch } from "react-redux";
+import { clearCart } from "../Features/cartSlice";
+import { useLogoutMutation } from "../Features/authApiSlice";
+import { logout } from "../Features/authSlice";
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [logoutApiCall] = useLogoutMutation();
+
+  const logoutHandler = async (e) => {
+    e.preventDefault();
+    try {
+      await logoutApiCall().unwrap();
+      dispatch(logout());
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
       <Sheet>
@@ -120,6 +145,16 @@ const Header = () => {
           </div>
         </form>
       </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <RefreshCw onClick={() => dispatch(clearCart())} />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Clear Cart</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">
@@ -133,7 +168,9 @@ const Header = () => {
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={(e) => logoutHandler(e)}>
+            Logout
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <ModeToggle />

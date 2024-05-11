@@ -62,7 +62,11 @@ const orderSchema = new mongoose.Schema({
         required: true,
     },
     items: [
-        {
+        {   
+            productName: {
+                type: String,
+                required: true,
+            },
             productId: {
                 // type: String,
                 type: mongoose.Schema.Types.ObjectId,
@@ -73,35 +77,52 @@ const orderSchema = new mongoose.Schema({
                 type: Number,
                 required: true,
                 default: 1,
+            },
+            price: {
+                type: Number,
+                required: true
+            },
+            Sgst: {
+                type: Number,
+                required: true
+            },
+            Cgst: {
+                type: Number,
+                required: true
             }
         }
     ],
-    date: {
-        type: Date,
-        default: Date.now,
-        required: true,
-    },
+    // date: {
+    //     type: Date,
+    //     default: Date.now,
+    //     required: true,
+    // },
     
-    Sgst: {
-        type: Number,
-        requried: true,
-    },
-    Cgst: {
-        type: Number,
-        requried: true,
-    },
-    Igst: {
-        type: Number,
-        requried: true,
-    },
-    Ugst: {
-        type: Number,
-        requried: true,
-    },
+    // Sgst: {
+    //     type: Number,
+    //     requried: true,
+    // },
+    // Cgst: {
+    //     type: Number,
+    //     requried: true,
+    // },
+    // Igst: {
+    //     type: Number,
+    //     requried: true,
+    // },
+    // Ugst: {
+    //     type: Number,
+    //     requried: true,
+    // },
     discount: {
         type: Number,
         requried: true,
         default: 0
+    },
+    itemsPrice: {
+        type: Number,
+        required: true,
+        default: 0.0
     },
     netAmount: {
         type: Number,

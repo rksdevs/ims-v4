@@ -1,9 +1,40 @@
 const Order = require("../models/orderModel");
+const mongoose = require("mongoose")
+
+const sequenceSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
+  seq: { type: Number, default: 0 }
+});
+
+const Sequence = mongoose.model('Sequence', sequenceSchema);
+
+// Function to get the next sequence value and increment it
+async function getNextSequenceValue(sequenceName) {
+  const sequenceDoc = await Sequence.findOneAndUpdate(
+    { _id: sequenceName },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  const nextSeq = sequenceDoc.seq;
+  const billPrefix = process.env.BILL_NO_PREFIX
+  return `${billPrefix}${nextSeq}`;
+}
+
+// Initialize the sequence collection with an initial value
+ const initializeSequence = async() => {
+  await Sequence.findOneAndUpdate(
+    { _id: 'billNumber' },
+    { $setOnInsert: { seq: 0 } },
+    { upsert: true }
+  );
+  console.log("Initialized sequence!")
+}
 
 //create Order
-
 const createOrder = async (req, res) => {
-    const newOrder = req.body;
+    const billNumber = await getNextSequenceValue('billNumber')
+    // const newOrder = req.body;
+    const { items, custName, custAddress, custPhone, discount, netAmount, methodOfPayment, itemsPrice} = req.body;
     try {
         //verify admin
         const verifyAdmin = req.user.isAdmin;
@@ -11,10 +42,29 @@ const createOrder = async (req, res) => {
             return res.status(400).json({message: "Unauthorized!"});
         }
 
-        const savedOrder = await new Order(newOrder).save();
+        if (items && items.length === 0) {
+        return res.status(400).json({message: "No order items"})
+        } else {
+        const order = new Order({
+            items: items.map((x)=>({
+                ...x,
+                productId: x._id,
+                _id: undefined
+            })),
+            custName,
+            custAddress,
+            custPhone,
+            discount,
+            netAmount,
+            methodOfPayment,
+            billNumber,
+            itemsPrice
+        })
+
+        const savedOrder = await new Order(order).save();
 
         res.status(200).json(savedOrder);
-
+        }
         
     } catch (error) {
         console.log(error);
@@ -93,14 +143,91 @@ const getAllOrder = async (req, res) => {
                 custName: 1,
                 custPhone: 1,
                 netAmount: 1,
-                date: 1,
+                createdAt: 1,
                 custAddress: 1,
                 items: { $arrayElemAt: ['$itemDetails.productName', 0] },
               },
             },
           ]);
 
-        res.status(200).json(allOrders);
+        const formatDate = (dateInput) => {
+           const originalDate = new Date(dateInput);
+           
+
+           const formattedDate = ('0' + originalDate.getDate()).slice(-2) + '-' + ('0' + (originalDate.getMonth() + 1)).slice(-2) + '-' + originalDate.getFullYear();
+
+           return formattedDate;
+        }
+
+        const orderDetailsToSend = allOrders.map((order)=>(
+            {...order,date: formatDate(order.createdAt)}
+        ))
+
+        res.status(200).json(orderDetailsToSend);
+
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+}
+
+const getSpecificOrder = async (req, res) => {
+    try {
+        //verify admin
+        const verifyAdmin = req.user.isAdmin;
+        if(!verifyAdmin) {
+            return res.status(400).json({message: "Unauthorized!"});
+        }
+
+        // const allOrders = await Order.find().select(projection).populate('items.productId', 'productName');
+        //the above line with the help of populate we are including the product name of from the reference product schema in the items.productId field
+
+        // const allOrders = await Order.aggregate([
+        //     {
+        //       $lookup: {
+        //         from: 'products', // Assuming the name of the 'Product' collection is 'products'
+        //         localField: 'items.productId',
+        //         foreignField: '_id',
+        //         as: 'itemDetails',
+        //       },
+        //     },
+        //     {
+        //       $project: {
+        //         _id: 1,
+        //         billNumber: 1,
+        //         custName: 1,
+        //         custPhone: 1,
+        //         netAmount: 1,
+        //         date: 1,
+        //         custAddress: 1,
+        //         items: { $arrayElemAt: ['$itemDetails.productName', 0] },
+        //       },
+        //     },
+        //   ]);
+
+        const formatDate = (dateInput) => {
+           const originalDate = new Date(dateInput);
+           
+
+           const formattedDate = ('0' + originalDate.getDate()).slice(-2) + '-' + ('0' + (originalDate.getMonth() + 1)).slice(-2) + '-' + originalDate.getFullYear();
+
+           return formattedDate;
+        }
+
+        // const orderDetailsToSend = allOrders.map((order)=>(
+        //     {...order,date: formatDate(order.date)}
+        // ))
+        // console.log(orderDetailsToSend)
+
+        const order = await Order.findById(req.params.id);
+
+        const orderDetailsToSend = {
+            ...order._doc,
+            date: formatDate(order.createdAt)
+        }
+
+        res.status(200).json(orderDetailsToSend);
 
         
     } catch (error) {
@@ -112,4 +239,4 @@ const getAllOrder = async (req, res) => {
 // Monthly Income
 
 
-module.exports = {createOrder, getAllOrder, deleteOrder, updateOrder}
+module.exports = {createOrder, getAllOrder, deleteOrder, updateOrder, getSpecificOrder, initializeSequence}

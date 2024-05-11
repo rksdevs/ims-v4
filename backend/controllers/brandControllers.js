@@ -2,7 +2,6 @@ const Brand = require("../models/brandModel");
 
 const addBrand = async (req, res) => {
     // console.log(req.user)
-
     try {
 
         // const newBrand = new Brand ({

@@ -88,5 +88,14 @@ try {
 
 }
 
+const logoutUser = async(req, res)=>{
+    res.cookie('access_token', '', {
+        httpOnly: true,
+        expires: new Date(0)
+    })
 
-module.exports= {registerUser, loginUser}
+    res.status(200).json({message: 'Logged out successfully!'})
+}
+
+
+module.exports= {registerUser, loginUser, logoutUser}

@@ -20,8 +20,16 @@ const authApiSlice = apiSlice.injectEndpoints({
                 headers: {"Content-Type": "application/json"},
                 credentials: 'include',  
             })
-        })
+        }),
+        logout: builder.mutation({
+            query: () => ({
+                url: `${USER_URL}/logout`,
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                credentials: 'include', 
+            }),
+        }),
     })
 })
 
-export const {useLoginMutation, useRegisterMutation} = authApiSlice
+export const {useLoginMutation, useRegisterMutation, useLogoutMutation} = authApiSlice
