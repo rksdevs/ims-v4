@@ -70,7 +70,7 @@ import { useNavigate } from "react-router-dom";
 export function Orders() {
   const { data: allOrders, isLoading, error } = useGetAllOrdersQuery();
   const data = useMemo(() => {
-    return allOrders || [];
+    return allOrders?.allOrders || [];
   }, [allOrders]);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -140,7 +140,7 @@ export function Orders() {
 
   useEffect(() => {
     if (allOrders) {
-      setPreviewOrderId(allOrders[0]._id);
+      setPreviewOrderId(allOrders?.allOrders[0]._id);
       setLoadPreviewCard(true);
     }
   }, [allOrders]);

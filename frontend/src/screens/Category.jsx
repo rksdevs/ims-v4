@@ -162,6 +162,7 @@ export function Category() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
     state: {
       pagination,
     },

@@ -74,6 +74,7 @@ const createOrder = async (req, res) => {
 
 //Update Order
 const updateOrder = async (req, res) => {
+    const { items, custName, custAddress, custPhone, discount, netAmount, methodOfPayment, itemsPrice} = req.body;
     try {
         //verify admin
         const verifyAdmin = req.user.isAdmin;
@@ -81,11 +82,26 @@ const updateOrder = async (req, res) => {
             return res.status(400).json({message: "Unauthorized!"});
         }
 
-        const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, {new:true});
+        const orderToUpdate = await Order.findById(req.params.id);
+
+        if (orderToUpdate) {
+            if (items && items.length === 0) {
+        return res.status(400).json({message: "No order items"})
+        } else {
+            orderToUpdate.items= items
+            orderToUpdate.custName = custName
+            orderToUpdate.custAddress = custAddress
+            orderToUpdate.custPhone = custPhone
+            orderToUpdate.discount = discount
+            orderToUpdate.netAmount = netAmount
+            orderToUpdate.methodOfPayment = methodOfPayment
+            orderToUpdate.itemsPrice = itemsPrice
+
+        const updatedOrder = await orderToUpdate.save();
 
         res.status(200).json(updatedOrder);
-
-        
+        }
+    }   
     } catch (error) {
         console.log(error);
         return res.status(500).json(error);
@@ -163,7 +179,29 @@ const getAllOrder = async (req, res) => {
             {...order,date: formatDate(order.createdAt)}
         ))
 
-        res.status(200).json(orderDetailsToSend);
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1;
+
+        function getSalesForMonthYear(salesData, month, year) {
+         return salesData.filter(sale => {
+            const saleDate = new Date(sale.createdAt);
+            return saleDate.getMonth() + 1 === month && saleDate.getFullYear() === year;
+            });
+        } 
+
+        function getSalesForYear(salesData, month, year) {
+         return salesData.filter(sale => {
+            const saleDate = new Date(sale.createdAt);
+            return saleDate.getFullYear() === year;
+            });
+        }
+
+        const salesForCurrentMonth = getSalesForMonthYear(orderDetailsToSend, currentMonth, currentYear)
+        const salesForCurrentYear = getSalesForYear(orderDetailsToSend, currentMonth, currentYear)
+        
+
+        res.status(200).json({allOrders: orderDetailsToSend, salesForCurrentMonth, salesForCurrentYear});
 
         
     } catch (error) {
@@ -237,6 +275,9 @@ const getSpecificOrder = async (req, res) => {
 }
 
 // Monthly Income
+const monthWiseOrders = async (req, res) => {
+
+}
 
 
 module.exports = {createOrder, getAllOrder, deleteOrder, updateOrder, getSpecificOrder, initializeSequence}

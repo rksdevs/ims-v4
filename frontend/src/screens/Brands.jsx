@@ -100,14 +100,16 @@ export function Brands() {
     if (allBrands?.length) {
       activeBrands = allBrands.filter((brand) => brand.status === "Active");
     }
-    return activeBrands;
+    return activeBrands || [];
   }, [allBrands]);
   const inActiveBrandData = useMemo(() => {
     let inActiveBrands;
     if (allBrands?.length) {
-      inActiveBrands = allBrands.filter((brand) => brand.status === "Inactive");
+      inActiveBrands = allBrands?.filter(
+        (brand) => brand.status === "Inactive"
+      );
     }
-    return inActiveBrands;
+    return inActiveBrands || [];
   }, [allBrands]);
   const { toast } = useToast();
   const [pagination, setPagination] = useState({
@@ -318,7 +320,7 @@ export function Brands() {
                             ))}
                         </TableHeader>
                         <TableBody>
-                          {allBrandstable.getRowModel().rows.map((row) => (
+                          {allBrandstable?.getRowModel().rows.map((row) => (
                             <TableRow key={row.id}>
                               {row.getVisibleCells().map((cell) => (
                                 <TableCell key={cell.id}>

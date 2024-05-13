@@ -11,6 +11,9 @@ import {
   Search,
   ShoppingCart,
   Users,
+  Layers3,
+  Tags,
+  ScrollText,
 } from "lucide-react";
 import { Sheet, SheetTrigger, SheetContent } from "./ui/sheet";
 import { Button } from "./ui/button";
@@ -38,12 +41,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../components/ui/tooltip";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearCart } from "../Features/cartSlice";
 import { useLogoutMutation } from "../Features/authApiSlice";
 import { logout } from "../Features/authSlice";
 
 const Header = () => {
+  const { items } = useSelector((state) => state.cart);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [logoutApiCall] = useLogoutMutation();
@@ -71,47 +76,65 @@ const Header = () => {
           <nav className="grid gap-2 text-lg font-medium">
             <Link
               to="/"
-              className="flex items-center gap-2 text-lg font-semibold"
+              className={`flex items-center gap-3 rounded-lg px-3 py-2  transition-all hover:text-primary`}
             >
-              <Package2 className="h-6 w-6" />
-              <span className="sr-only">Acme Inc</span>
-            </Link>
-            <Link
-              to="/"
-              className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-            >
-              <Home className="h-5 w-5" />
+              <Home className="h-4 w-4" />
               Dashboard
             </Link>
             <Link
-              to="/"
-              className="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground"
+              to="/orders"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ScrollText className="h-4 w-4" />
               Orders
-              <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                6
-              </Badge>
             </Link>
             <Link
-              to="/"
-              className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+              to="/products"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary text-muted-foreground"
             >
-              <Package className="h-5 w-5" />
-              Products
+              <Package className="h-4 w-4" />
+              Products{" "}
             </Link>
             <Link
-              to="/"
-              className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+              to="/brands"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary text-muted-foreground"
             >
-              <Users className="h-5 w-5" />
+              <Tags className="h-4 w-4" />
+              Brands{" "}
+            </Link>
+            <Link
+              to="/categories"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary text-muted-foreground"
+            >
+              <Layers3 className="h-4 w-4" />
+              Categories{" "}
+            </Link>
+            <Link
+              to="/customers"
+              className="hidden flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+            >
+              <Users className="h-4 w-4" />
               Customers
             </Link>
             <Link
-              to="/"
-              className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+              to="/cart"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
-              <LineChart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4" />
+              Cart
+              <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                {items.length
+                  ? items.reduce((sum, currentItem) => {
+                      return sum + currentItem.quantity;
+                    }, 0)
+                  : 0}
+              </Badge>
+            </Link>
+            <Link
+              to="/analytics"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+            >
+              <LineChart className="h-4 w-4" />
               Analytics
             </Link>
           </nav>
