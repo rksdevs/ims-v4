@@ -1,3 +1,4 @@
+const path = require("path")
 const express = require("express");
 const connectToDb = require("./config/db");
 const mongoose = require("mongoose");
@@ -32,12 +33,6 @@ mongoose.connection.on("disconnected", ()=>{
 })
 //mongodb connection integration check
 
-//routes - home page, when we send a get request to the home page, it triggers the callback function which sends the data inside the code
-app.get("/", (req,res)=>{
-    res.send("Hello, this is home!")
-})
-
-
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Replace with your React app's URL
@@ -53,6 +48,20 @@ app.use("/api/cart", cartRoute);
 app.use("/api/product", productRoute);
 app.use("/api/order", orderRoute);
 app.use("/api/category", categoryRoute);
+
+ __dirname = path.resolve(); //set __dirname to current directory;
+if(process.env.NODE_ENV === 'production') {
+    //set static folder
+    app.use(express.static(path.join(__dirname, "/frontend/build")));
+
+    //any routes which is not listed in the api will be redirect to index page
+    app.get("*", (req,res)=>
+        res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html')))
+} else {
+    app.get("/", (req, res)=>{
+        res.send("API is running...")
+    })
+}
 
 //server
 app.listen(PORT, ()=>{

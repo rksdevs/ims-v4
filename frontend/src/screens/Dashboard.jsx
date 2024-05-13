@@ -113,7 +113,7 @@ export function Dashboard() {
                 </>
               )}
               {recentOrdersArray?.map((order) => (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4" key={order._id}>
                   <Avatar className="hidden h-9 w-9 sm:flex">
                     <AvatarImage src={avatarMan} alt="Avatar" />
                     <AvatarFallback>OM</AvatarFallback>
