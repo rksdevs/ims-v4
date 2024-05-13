@@ -133,6 +133,7 @@ export function Orders() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
     state: {
       pagination,
     },
