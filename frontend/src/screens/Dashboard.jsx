@@ -11,8 +11,28 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import Chart from "../components/Chart";
 import avatarMan from "../components/assets/images/avatar-man.jpg";
 import avatarWoman from "../components/assets/images/avatar-woman.jpg";
+import { useNavigate } from "react-router-dom";
+import { useGetAllOrdersQuery } from "../Features/orderApiSlice";
+import { useEffect, useMemo, useState } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
+import { Skeleton } from "../components/ui/skeleton";
 
 export function Dashboard() {
+  const navigate = useNavigate();
+  const { data: allOrders, isLoading, error } = useGetAllOrdersQuery();
+  const data = useMemo(() => {
+    return allOrders?.allOrders || [];
+  }, [allOrders]);
+  const [recentOrdersArray, setRecentOrdersArray] = useState([]);
+
+  useEffect(() => {
+    if (data.length) {
+      const startIndex = Math.max(data.length - 5, 0);
+      setRecentOrdersArray(data?.slice(startIndex));
+      // console.log();
+    }
+  }, [data]);
+
   return (
     <>
       <div className="flex items-center pl-4">
@@ -25,50 +45,54 @@ export function Dashboard() {
         <div className="flex gap-4 flex-col md:flex-row">
           <Card className="sm:col-span-2">
             <CardHeader className="pb-3">
-              <CardTitle>Your Orders</CardTitle>
+              <CardTitle>Orders</CardTitle>
               <CardDescription className="max-w-lg text-balance leading-relaxed">
                 Introducing Our Dynamic Orders Dashboard for Seamless Management
                 and Insightful Analysis.
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button>Create New Order</Button>
+              <Button onClick={() => navigate("/orders")}>Check Orders</Button>
             </CardFooter>
           </Card>
           <Card className="sm:col-span-2">
             <CardHeader className="pb-3">
-              <CardTitle>Your Orders</CardTitle>
+              <CardTitle>Products</CardTitle>
               <CardDescription className="max-w-lg text-balance leading-relaxed">
-                Introducing Our Dynamic Orders Dashboard for Seamless Management
-                and Insightful Analysis.
+                Introducing Our Dynamic Product Dashboard for Seamless
+                Management and Insightful Analysis.
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button>Create New Order</Button>
+              <Button onClick={() => navigate("/products")}>
+                Check Products
+              </Button>
             </CardFooter>
           </Card>
           <Card className="sm:col-span-2">
             <CardHeader className="pb-3">
-              <CardTitle>Your Orders</CardTitle>
+              <CardTitle>Categories</CardTitle>
               <CardDescription className="max-w-lg text-balance leading-relaxed">
-                Introducing Our Dynamic Orders Dashboard for Seamless Management
-                and Insightful Analysis.
+                Introducing Our Dynamic Categories Dashboard for Seamless
+                Management and Insightful Analysis.
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button>Create New Order</Button>
+              <Button onClick={() => navigate("/categories")}>
+                Check Categories
+              </Button>
             </CardFooter>
           </Card>
           <Card className="sm:col-span-2">
             <CardHeader className="pb-3">
-              <CardTitle>Your Orders</CardTitle>
+              <CardTitle>Brands</CardTitle>
               <CardDescription className="max-w-lg text-balance leading-relaxed">
-                Introducing Our Dynamic Orders Dashboard for Seamless Management
+                Introducing Our Dynamic Brands Dashboard for Seamless Management
                 and Insightful Analysis.
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button>Create New Order</Button>
+              <Button onClick={() => navigate("/brands")}>Check Brands</Button>
             </CardFooter>
           </Card>
         </div>
@@ -76,84 +100,35 @@ export function Dashboard() {
           <Chart />
           <Card x-chunk="dashboard-01-chunk-5">
             <CardHeader>
-              <CardTitle>Recent Sales</CardTitle>
+              <CardTitle>Recent Orders</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-8">
-              <div className="flex items-center gap-4">
-                <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src={avatarMan} alt="Avatar" />
-                  <AvatarFallback>OM</AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">
-                    Olivia Martin
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    olivia.martin@email.com
-                  </p>
+              {isLoading && (
+                <>
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                  </div>
+                </>
+              )}
+              {recentOrdersArray?.map((order) => (
+                <div className="flex items-center gap-4">
+                  <Avatar className="hidden h-9 w-9 sm:flex">
+                    <AvatarImage src={avatarMan} alt="Avatar" />
+                    <AvatarFallback>OM</AvatarFallback>
+                  </Avatar>
+                  <div className="grid gap-1">
+                    <p className="text-sm font-medium leading-none">
+                      {order.custName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {order.custAddress}
+                    </p>
+                  </div>
+                  <div className="ml-auto font-medium">₹{order.netAmount}</div>
                 </div>
-                <div className="ml-auto font-medium">+$1,999.00</div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src={avatarWoman} alt="Avatar" />
-                  <AvatarFallback>JL</AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">
-                    Jackson Lee
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    jackson.lee@email.com
-                  </p>
-                </div>
-                <div className="ml-auto font-medium">+$39.00</div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src={avatarMan} alt="Avatar" />
-                  <AvatarFallback>IN</AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">
-                    Isabella Nguyen
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    isabella.nguyen@email.com
-                  </p>
-                </div>
-                <div className="ml-auto font-medium">+$299.00</div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src={avatarWoman} alt="Avatar" />
-                  <AvatarFallback>WK</AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">
-                    William Kim
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    will@email.com
-                  </p>
-                </div>
-                <div className="ml-auto font-medium">+$99.00</div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src={avatarMan} alt="Avatar" />
-                  <AvatarFallback>SD</AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">
-                    Sofia Davis
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    sofia.davis@email.com
-                  </p>
-                </div>
-                <div className="ml-auto font-medium">+$39.00</div>
-              </div>
+              ))}
             </CardContent>
           </Card>
         </div>

@@ -103,13 +103,13 @@ const SideNavbar = () => {
                   : 0}
               </Badge>
             </Link>
-            <Link
+            {/* <Link
               to="/analytics"
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
               <LineChart className="h-4 w-4" />
               Analytics
-            </Link>
+            </Link> */}
           </nav>
         </div>
         <div className="mt-auto p-4">
